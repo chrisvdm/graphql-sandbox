@@ -20,20 +20,39 @@ exports.root = {
 var fauxDB = {
   authUser: {
     userID: '2341',
-    userName: 'Chris'
+    userName: 'Chris',
+    city: 'Berlin',
+    country: 'DE',
+    postalCode: '9065'
   },
   users: [
     {
       userID: '2341',
-      userName: 'Chris'
+      userName: 'Chris',
+      city: 'Berlin',
+      country: 'DE',
+      postalCode: '9065'
     },
     {
       userID: '43456',
-      userName: 'Justin'
+      userName: 'Justin',
+      city: 'Berlin',
+      country: 'DE',
+      postalCode: '9065'
     },
     {
       userID: '9735',
-      userName: 'Flynn'
+      userName: 'Flynn',
+      city: 'Berlin',
+      country: 'DE',
+      postalCode: '9065'
+    },
+    {
+      userID: '9105',
+      userName: 'Dylan',
+      city: 'Cape Town',
+      country: 'RSA',
+      postalCode: '8000'
     }
   ]
 }
