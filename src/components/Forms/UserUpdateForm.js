@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 
+import { makeRequest } from '../../graphql/lib'
+
 class UserUpdateForm extends Component {
-  construct (props) {
-    super()
+  constructor (props) {
+    super(props)
 
     const { user } = props
     this.state = {
@@ -23,11 +25,23 @@ class UserUpdateForm extends Component {
   onFormSubmission (e) {
     e.preventDefault()
     console.log(this.state)
+    makeRequest({
+      query: `mutation updateUser ($userID: String, $userInput: User)
+      updateUser(userID: $userID, userInput: $userInput) {
+        userName 
+        country 
+        city 
+        postalCode
+      }`,
+      variables: {
+        userID: this.props.user.userID,
+        userInput: { ...this.state }
+      }
+    })
   }
 
   render () {
     const { name, country, city, postalCode } = this.state
-
     return (
       <form onSubmit={e => this.onFormSubmission(e)}>
         <h3>Update User : {name}</h3>

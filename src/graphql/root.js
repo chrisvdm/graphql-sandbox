@@ -14,7 +14,12 @@ exports.root = {
     fauxDB.users.push(createdUser)
     return createdUser
   },
-  users: () => fauxDB.users
+  updateUser: ({ userID, userInput }) => {
+    const index = fauxDB.users.findIndex(u => u.userID === userID)
+    fauxDB.users[index] = userInput
+  },
+  users: () => fauxDB.users,
+  user: ({ userID }) => fauxDB.users.find(user => user.userID === userID)
 }
 
 var fauxDB = {

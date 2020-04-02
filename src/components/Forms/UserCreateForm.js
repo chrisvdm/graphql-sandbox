@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 class UserUpdateForm extends Component {
-  construct (props) {
+  constructor (props) {
     super()
     this.state = {
       name: '',

@@ -4,21 +4,20 @@ import 'regenerator-runtime/runtime.js'
 
 import { makeRequest } from './graphql/lib'
 
+import { UserCreateForm, UserUpdateForm } from './components'
+
 class App extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      name: '',
-      formUserName: '',
-      formSubmissionMsg: '',
-      formNewUser: '',
-      newUser: null,
-      users: []
+      action: 'update',
+      userList: [],
+      userUpdate: {},
+      userUpdateID: ''
     }
 
-    this.userDataButtonClicked = this.userDataButtonClicked.bind(this)
-    this.userDataFormSubmitted = this.userDataFormSubmitted.bind(this)
-    this.formFieldChanged = this.formFieldChanged.bind(this)
+    this.onUserUpdateChange = this.onUserUpdateChange.bind(this)
+    this.onInputChange = this.onInputChange.bind(this)
   }
 
   componentDidMount () {
@@ -29,106 +28,116 @@ class App extends Component {
           userName
         }
       }`
-    }).then(({ users }) => this.setState({ users }))
+    }).then(({ users }) => {
+      const userList = users.map(u => ({ value: u.userID, label: u.userName }))
+      this.setState({ userList })
+    })
   }
 
-  userDataButtonClicked () {
-    makeRequest({
-      query: `{
-        authUser {
-        userID
-        userName
-        }
-      }`
-    }).then(({ authUser }) => this.setState({ name: authUser.userName }))
-  }
-
-  formFieldChanged (v, f) {
+  onInputChange (v, f) {
     this.setState({ [f]: v })
   }
 
-  async userDataFormSubmitted (e) {
-    e.preventDefault()
-    const { formUserName, formNewUser } = this.state
-    try {
-      const res = await makeRequest({
-        query: `mutation handleUserFormSubmission($userName: String, $authUserName: String) {
-          setUserName(userName: $authUserName)
-          createUser(userName: $userName) {
-            userName
-            userID
-          }
-        }`,
-        variables: {
-          authUserName: formUserName,
-          userName: formNewUser
+  onUserUpdateChange (id) {
+    makeRequest({
+      query: `query GetUser($userID: String) {
+        user (userID: $userID) {
+          userID
+          userName
+          country
+          city
+          postalCode
         }
+      }`,
+      variables: {
+        userID: id
+      }
+    })
+      .then(({ user }) => {
+        this.setState({
+          userUpdateID: id,
+          userUpdate: user
+        })
       })
-      this.setState({
-        formUserName: res.setUserName,
-        formNewUser: res.createUser,
-        formSubmissionMsg: `User ${res.createUser.userName} (${
-          res.createUser.userID
-        }) was created.`
-      })
-    } catch (e) {
-      console.log('FORM SUBMIT ERROR:', e)
-    }
+      .catch(err => console.log(err))
   }
 
+  // async userDataFormSubmitted (e) {
+  //   e.preventDefault()
+  //   const { formUserName, formNewUser } = this.state
+  //   try {
+  //     const res = await makeRequest({
+  //       query: `mutation handleUserFormSubmission($userName: String, $authUserName: String) {
+  //         setUserName(userName: $authUserName)
+  //         createUser(userName: $userName) {
+  //           userName
+  //           userID
+  //         }
+  //       }`,
+  //       variables: {
+  //         authUserName: formUserName,
+  //         userName: formNewUser
+  //       }
+  //     })
+  //     this.setState({
+  //       formUserName: res.setUserName,
+  //       formNewUser: res.createUser,
+  //       formSubmissionMsg: `User ${res.createUser.userName} (${
+  //         res.createUser.userID
+  //       }) was created.`
+  //     })
+  //   } catch (e) {
+  //     console.log('FORM SUBMIT ERROR:', e)
+  //   }
+  // }
+
   render () {
-    const {
-      name,
-      formUserName,
-      formNewUser,
-      formSubmissionMsg,
-      newUser,
-      users
-    } = this.state
+    const { userList, action, userUpdate, userUpdateID } = this.state
+
     return (
-      <div>
+      <div className='app'>
         <h1>Graphql Test</h1>
-        <h2>{name}</h2>
 
-        {}
-        {/* Retrieve data */}
-        <div>
-          <button onClick={this.userDataButtonClicked}>Get UserData</button>
-        </div>
+        <p>Select an action to perform:</p>
+        <input
+          name='userAction'
+          type='radio'
+          onChange={e => this.onInputChange(e.target.value, 'action')}
+          value='update'
+          checked={action === 'update'}
+        />
+        <label htmlFor='userAction'>Update user</label>
+        <input
+          name='userAction'
+          type='radio'
+          onChange={e => this.onInputChange(e.target.value, 'action')}
+          value='create'
+          checked={action === 'create'}
+        />
+        <label htmlFor='userAction'>Create user</label>
 
-        <form onSubmit={e => this.userDataFormSubmitted(e)}>
-          <p>{formSubmissionMsg}</p>
+        {action === 'update' ? (
+          <div className='user-form'>
+            <h3>Select user to update</h3>
+            <select
+              name='userUpdate'
+              onChange={e => this.onUserUpdateChange(e.target.value)}
+              value={userUpdateID}
+            >
+              {userList.map((user, i) => (
+                <option key={`userlist-0${i}`} value={user.value}>
+                  {user.label}
+                </option>
+              ))}
+            </select>
 
-          <label htmlFor='formUserName'>Enter new username</label>
-          <input
-            type='text'
-            name='formUserName'
-            value={formUserName}
-            onChange={e =>
-              this.formFieldChanged(e.target.value, 'formUserName')
-            }
-          />
-
-          <br />
-
-          <label htmlFor='formNewUser'>
-            Add new User by typing new username:{' '}
-          </label>
-          <input
-            name='formNewUser'
-            type='text'
-            value={formNewUser}
-            onChange={e => this.formFieldChanged(e.target.value, 'formNewUser')}
-          />
-          <br />
-          <input type='submit' value='Update User' />
-        </form>
-
-        <ul>
-          {users.map((user, id) => (
-            <li key={`${id}userlist`}>{user.userName}</li>
-          ))}
-        </ul>
+            {Object.keys(userUpdate).length > 0 && (
+              <UserUpdateForm user={userUpdate} />
+            )}
+          </div>
+        ) : (
+          <UserCreateForm />
+        )}
       </div>
     )
   }
