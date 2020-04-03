@@ -62,38 +62,8 @@ class App extends Component {
       .catch(err => console.log(err))
   }
 
-  // async userDataFormSubmitted (e) {
-  //   e.preventDefault()
-  //   const { formUserName, formNewUser } = this.state
-  //   try {
-  //     const res = await makeRequest({
-  //       query: `mutation handleUserFormSubmission($userName: String, $authUserName: String) {
-  //         setUserName(userName: $authUserName)
-  //         createUser(userName: $userName) {
-  //           userName
-  //           userID
-  //         }
-  //       }`,
-  //       variables: {
-  //         authUserName: formUserName,
-  //         userName: formNewUser
-  //       }
-  //     })
-  //     this.setState({
-  //       formUserName: res.setUserName,
-  //       formNewUser: res.createUser,
-  //       formSubmissionMsg: `User ${res.createUser.userName} (${
-  //         res.createUser.userID
-  //       }) was created.`
-  //     })
-  //   } catch (e) {
-  //     console.log('FORM SUBMIT ERROR:', e)
-  //   }
-  // }
-
   render () {
     const { userList, action, userUpdate, userUpdateID } = this.state
-
     return (
       <div className='app'>
         <h1>Graphql Test</h1>

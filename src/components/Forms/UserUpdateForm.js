@@ -18,6 +18,18 @@ class UserUpdateForm extends Component {
     this.onFormSubmission = this.onFormSubmission.bind(this)
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.user !== this.props.user) {
+      const { user } = this.props
+      this.setState({
+        name: user.userName,
+        postalCode: user.postalCode,
+        city: user.city,
+        country: user.country
+      })
+    }
+  }
+
   onInputChange (value, name) {
     this.setState({ [name]: value })
   }
